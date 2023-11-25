@@ -1,16 +1,28 @@
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 
 public class IRoadTrip {
+
     private HashMap<String, HashMap<String, Integer>> countryBorders = new HashMap<>();
     private HashMap<String, Integer> capitalDistances = new HashMap<>();
-    private HashMap<String, Integer> stateName = new HashMap<>();
+    private HashMap<String, String> stateName = new HashMap<>();
 
+    /**
+     * 
+     * @param args
+     */
     public IRoadTrip (String [] args) {
-        // Replace with your code
+     
         if(args.length != 3) {
             System.out.println("Must input borders.txt, capdist.csv, and state_name.tsv");
             return;
@@ -21,6 +33,10 @@ public class IRoadTrip {
         readStateNameFile(args[2]);
     }
 
+    /**
+     * 
+     * @param fileName
+     */
     private void readBordersFile(String fileName) {
         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line; 
@@ -44,8 +60,12 @@ public class IRoadTrip {
         }
     }
 
+    /**
+     * 
+     * @param fileName
+     */
     private void readCapitalDistancesFile(String fileName) {
-        try(BufferedReader br = BufferedReader(new FileReader(fileName))) {
+         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
             while((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
@@ -61,6 +81,10 @@ public class IRoadTrip {
         }
     }
 
+    /**
+     * 
+     * @param fileName
+     */
     private void readStateNameFile(String fileName) {
         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
@@ -77,17 +101,95 @@ public class IRoadTrip {
     }
 
     public int getDistance (String country1, String country2) {
-        // Replace with your code
+        if(!stateName.containsKey(country1) || !stateName.containsKey(country2)) {
+            System.out.println("One or more of these countries do not exist within our database");
+            return -1;
+        }
+        if(!countryBorders.containsKey(country1) || !countryBorders.containsKey(country2)) {
+            System.out.println("Inputted countries do not have a shared border");
+            return -1;
+        }
+
+        String countryCode1 = stateName.get(country1);
+        String countryCode2 = stateName.get(country2);
+        String key = countryCode1 + "-" + countryCode2;
+
+        if(capitalDistances.containsKey(key)) {
+            return capitalDistances.get(key);
+        }
+
+        //if no direct or indirect path exists, return -1
         return -1;
     }
 
 
+    /**
+     * 
+     * @param country1
+     * @param country2
+     * @return
+     */
     public List<String> findPath (String country1, String country2) {
-        // Replace with your code
-        return null;
+        if(!stateName.containsKey(country1) || !stateName.containsKey(country2)) {
+            System.out.println("One or more of these countries do not exist within our database");
+            return new ArrayList<>();
+        }
+
+        //creating queue for BFS traversal
+        //map storing visited countries
+        //set to store visited countries parents
+        Queue<String> queue = new LinkedList<>();
+        Map<String, String> parentMap = new HashMap<>();
+        Set<String> visited = new HashSet<>();
+
+        //BFS from country1
+        queue.add(country1);
+        visited.add(country1);
+
+        //country1 will not begin with a parent
+        parentMap.put(country1, null);
+
+        while(!queue.isEmpty()) {
+            String currCountry = queue.poll();
+
+            if(currCountry.equals(country2)) {
+                return constructPath(parentMap, country2);
+            }
+
+            if(countryBorders.containsKey(currCountry)) {
+                for(String neighbor: countryBorders.get(currCountry).keySet()) {
+                    if(!visited.contains(neighbor)) {
+                        queue.add(neighbor);
+                        visited.add(neighbor);
+                        parentMap.put(neighbor, currCountry);
+                    }
+                }
+            }
+        }
+
+        System.out.println("No path found between " + country1 + " and " + country2);
+        return new ArrayList<>();
     }
 
+    /**
+     * 
+     * @param parentMap
+     * @param dest
+     * @return
+     */
+    private List<String> constructPath(Map<String, String> parentMap, String dest) {
+        List<String> path = new ArrayList<>();
+        String curr = dest;
+        while(curr != null) {
+            path.add(0, curr);
+            curr = parentMap.get(curr);
+        }
+        return path;
+    }
 
+    /**
+     * 
+     */
     public void acceptUserInput() {
         // Replace with your code
         String input1;
@@ -98,36 +200,46 @@ public class IRoadTrip {
             while(true) {
                 System.out.println("Enter name of the first country (to quit type EXIT)");
                 input1 = reader.readLine();
-                if(input1.equalsIgnoreCase("EXIT"));
+                if(input1.equalsIgnoreCase("EXIT")){
                     break;
-            }
+                }
+                    
+                System.out.println("Enter the name of the second country (to quit type EXIT)");
+                input2 = reader.readLine();
 
-            input2 = reader.readLine();
-            System.out.println("Enter the name of the second country (to quit typer EXIT)");
-            if(input2.equalsIgnoreCase("EXIT"));
-                break;
+                if(input2.equalsIgnoreCase("EXIT")){
+                     break;
+                }
+                   
+                List<String> path = findPath(input1, input2);
+                if(path.isEmpty()) {
+                    System.out.println("No path found between " + input1 + " to " + input2); 
+                } else {
+                    System.out.println("Path from " + input1 + " to " + input2 + ":");
+                    for(String step: path) {
+                        System.out.println(" " + step);
+                    }
+                }
+            }   
+        } catch(IOException e) {
+            e.printStackTrace();
         }
-      //  System.out.println("IRoadTrip - skeleton");
-
-        List<String> path = filePath(input1, input2);
-        if(path.isEmpty()) {
-            System.out.println("No path found from " + input1 + " to " + input2);
-            for(String step: path) {
-                System.System.out.println(step);
-            }
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
     }
+            
 
-
+    /**
+     * 
+     * @param args
+     */
     public static void main(String[] args) {
         IRoadTrip a3 = new IRoadTrip(args);
 
+        if(args.length!= 3) {
+            System.out.println("Must input borders.txt, capdist.csv, and state_name.tsv");
+        } else {
+            System.out.println("Unable to complete task :( )");
+        }
         a3.acceptUserInput();
     }
 
 }
-
-
-
