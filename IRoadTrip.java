@@ -13,16 +13,19 @@ import java.util.LinkedList;
 
 public class IRoadTrip {
 
-    private HashMap<String, HashMap<String, Integer>> countryBorders = new HashMap<>();
-    private HashMap<String, Integer> capitalDistances = new HashMap<>();
-    private HashMap<String, String> stateName = new HashMap<>();
+    private Graph countryGraph;
+    private Map<String, String> countryCodesMap;
+    private Map<String, String> fixedCountriesMap;
 
     /**
      * 
      * @param args
      */
     public IRoadTrip (String [] args) {
-     
+        countryGraph = new Graph();
+        countryCodesMap = new HashMap<String, String>();
+        fixedCountriesMap = createFixedCountries();
+        
         if(args.length != 3) {
             System.out.println("Must input borders.txt, capdist.csv, and state_name.tsv");
             return;
@@ -32,6 +35,34 @@ public class IRoadTrip {
         readCapitalDistancesFile(args[1]);
         readStateNameFile(args[2]);
     }
+
+    /**
+     * idea from Prof. Veomett
+     * @return fixed countries
+     */
+    private Map<String, String> createFixedCountries() {
+        Map<String, String> fixedCountries = new HashMap<>();
+        fixedCountries.put("Bahamas", "Bahamas, The");
+        fixedCountries.put("Bosnia-Herzegonia", "Bosnia and Herzegonia");
+        fixedCountries.put("Congo, Democratic Republic of (Zaire)", "Democratic Republic of the Congo");
+        fixedCountries.put("Congo, Democratic Republic of the", "Republic of the Congo");
+        fixedCountries.put("East Timor", "Timor-Leste");
+        fixedCountries.put("Gambia, The", "The Gambia");
+        fixedCountries.put("Gambia", "The Gambia");
+        fixedCountries.put("German Federal Republic", "Germany");
+        fixedCountries.put("Greenland).", "Greenland");
+        fixedCountries.put("Italy.", "Italy");
+        fixedCountries.put("Korea, North", "North Korea");
+        fixedCountries.put("Macedonia", "North Macedonia");
+        fixedCountries.put("Macedonia (Former Yugoslav Republic of)", "Macedonia");
+        fixedCountries.put("US", "United States of America");
+        fixedCountries.put("Unites States", "United States of America");
+        fixedCountries.put("UK", "United Kingdom");
+        fixedCountries.put("Zambia.", "Zambia");
+
+        return fixedCountries;
+    }
+
 
     /**
      * 
@@ -53,7 +84,7 @@ public class IRoadTrip {
 
                     borderMap.put(borderCountry, borderLength);
                 }
-                countryBorders.put(country, borderMap);
+              // countryBorders.put(country, borderMap);
             }
         } catch(IOException e) {
             e.printStackTrace();
@@ -73,8 +104,7 @@ public class IRoadTrip {
                 String countryB = parts[3];
                 int distance = Integer.parseInt(parts[4]);
 
-                capitalDistances.put(countryA + "-" + countryB, distance);
-                capitalDistances.put(countryB + "-" + countryA, distance);
+                
             } 
         } catch (IOException e){
             e.printStackTrace();
@@ -93,7 +123,7 @@ public class IRoadTrip {
                 String countryID = parts[1];
                 String countryName = parts[2];
 
-                stateName.put(countryName, countryID);
+               
             } 
         } catch(IOException e) {
             e.printStackTrace();
@@ -101,25 +131,7 @@ public class IRoadTrip {
     }
 
     public int getDistance (String country1, String country2) {
-        if(!stateName.containsKey(country1) || !stateName.containsKey(country2)) {
-            System.out.println("One or more of these countries do not exist within our database");
-            return -1;
-        }
-        if(!countryBorders.containsKey(country1) || !countryBorders.containsKey(country2)) {
-            System.out.println("Inputted countries do not have a shared border");
-            return -1;
-        }
-
-        String countryCode1 = stateName.get(country1);
-        String countryCode2 = stateName.get(country2);
-        String key = countryCode1 + "-" + countryCode2;
-
-        if(capitalDistances.containsKey(key)) {
-            return capitalDistances.get(key);
-        }
-
-        //if no direct or indirect path exists, return -1
-        return -1;
+    
     }
 
 
@@ -130,47 +142,10 @@ public class IRoadTrip {
      * @return
      */
     public List<String> findPath (String country1, String country2) {
-        if(!stateName.containsKey(country1) || !stateName.containsKey(country2)) {
-            System.out.println("One or more of these countries do not exist within our database");
-            return new ArrayList<>();
+       
         }
 
-        //creating queue for BFS traversal
-        //map storing visited countries
-        //set to store visited countries parents
-        Queue<String> queue = new LinkedList<>();
-        Map<String, String> parentMap = new HashMap<>();
-        Set<String> visited = new HashSet<>();
-
-        //BFS from country1
-        queue.add(country1);
-        visited.add(country1);
-
-        //country1 will not begin with a parent
-        parentMap.put(country1, null);
-
-        while(!queue.isEmpty()) {
-            String currCountry = queue.poll();
-
-            if(currCountry.equals(country2)) {
-                return constructPath(parentMap, country2);
-            }
-
-            if(countryBorders.containsKey(currCountry)) {
-                for(String neighbor: countryBorders.get(currCountry).keySet()) {
-                    if(!visited.contains(neighbor)) {
-                        queue.add(neighbor);
-                        visited.add(neighbor);
-                        parentMap.put(neighbor, currCountry);
-                    }
-                }
-            }
-        }
-
-        System.out.println("No path found between " + country1 + " and " + country2);
-        return new ArrayList<>();
-    }
-
+    
     /**
      * 
      * @param parentMap
