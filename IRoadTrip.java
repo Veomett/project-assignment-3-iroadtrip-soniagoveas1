@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.io.BufferedReader;
@@ -15,7 +16,7 @@ public class IRoadTrip {
 
     private Graph countryGraph;
     private Map<String, String> countryCodesMap;
-    private Map<String, String> fixedCountriesMap;
+    public Map<String, String> fixedCountriesMap;
 
     /**
      * 
@@ -76,15 +77,12 @@ public class IRoadTrip {
                 String country = parts[0].trim();
                 String[] borders = parts[1].split(";");
 
-                HashMap<String, Integer> borderMap = new HashMap<>();
-                for(String border: borders) {
-                    String[] borderParts = border.trim().split("\\s+");
-                    String borderCountry = borderParts[0];
-                    int borderLength = Integer.parseInt(borderParts[1]);
+               countryGraph.addNode(country);
 
-                    borderMap.put(borderCountry, borderLength);
-                }
-              // countryBorders.put(country, borderMap);
+               for(String border: borders) {
+                    String borderCountry = border.trim();
+                    countryGraph.addEdge(country, borderCountry);
+               }
             }
         } catch(IOException e) {
             e.printStackTrace();
@@ -104,7 +102,7 @@ public class IRoadTrip {
                 String countryB = parts[3];
                 int distance = Integer.parseInt(parts[4]);
 
-                
+                countryGraph.addDistance(countryA, countryB, distance);
             } 
         } catch (IOException e){
             e.printStackTrace();
@@ -123,17 +121,12 @@ public class IRoadTrip {
                 String countryID = parts[1];
                 String countryName = parts[2];
 
-               
+               countryCodesMap.put(countryID, countryName);
             } 
         } catch(IOException e) {
             e.printStackTrace();
         }
     }
-
-    public int getDistance (String country1, String country2) {
-    
-    }
-
 
     /**
      * 
@@ -141,9 +134,29 @@ public class IRoadTrip {
      * @param country2
      * @return
      */
-    public List<String> findPath (String country1, String country2) {
-       
+    public int getDistance(String country1, String country2) {
+        Map<String, Integer> distanceFromCountry1 = countryGraph.getDistanceMap(country1);
+
+        if(distanceFromCountry1 != null && distanceFromCountry1.containsKey(country2)) {
+            return distanceFromCountry1.get(country2);
+        } else {
+            return -1;
         }
+    }
+
+
+    /**
+     * find path from country 1 to country 2
+     * through the capitals of other countries
+     * @param country1
+     * @param country2
+     * @return
+     */
+    public List<String> findPath(String country1, String country2) {
+       Map<String, Integer> distances = new HashMap<>();
+       Map<String, String> previous = new HashMap<>();
+
+    }
 
     
     /**
