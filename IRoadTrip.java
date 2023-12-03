@@ -1,16 +1,17 @@
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Set;
+//import java.util.Queue;
+//import java.util.Set;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
+//import java.util.HashSet;
+//import java.util.LinkedList;
 
 public class IRoadTrip {
 
@@ -28,8 +29,9 @@ public class IRoadTrip {
         fixedCountriesMap = createFixedCountries();
         
         if(args.length != 3) {
-            System.out.println("Must input borders.txt, capdist.csv, and state_name.tsv");
+         //   System.out.println("Must input borders.txt, capdist.csv, and state_name.tsv");
             return;
+    
         }
 
         readBordersFile(args[0]);
@@ -60,6 +62,8 @@ public class IRoadTrip {
         fixedCountries.put("Unites States", "United States of America");
         fixedCountries.put("UK", "United Kingdom");
         fixedCountries.put("Zambia.", "Zambia");
+        fixedCountries.put("Romania", "Rumania");
+        fixedCountries.put("Cape Verde", "Cabo Verde");
 
         return fixedCountries;
     }
@@ -77,11 +81,10 @@ public class IRoadTrip {
                 String country = parts[0].trim();
                 String[] borders = parts[1].split(";");
 
-               countryGraph.addEdge(0, 0, 0);
 
                for(String border: borders) {
                     String borderCountry = border.trim();
-                  //  countryGraph.addDirEdge(country, borderCountry, 0);
+                    countryGraph.addDirEdge(country, borderCountry, 1);
                }
             }
         } catch(IOException e) {
@@ -155,8 +158,43 @@ public class IRoadTrip {
     public List<String> findPath(String country1, String country2) {
        Map<String, Integer> distances = new HashMap<>();
        Map<String, String> previous = new HashMap<>();
+       PriorityQueue<String> queue = new PriorityQueue<>(Comparator.comparingInt(distances::get));
 
-       //add return type
+       for(String country: countryGraph.getCountries()) {
+            distances.put(country, Integer.MAX_VALUE);
+            previous.put(country, null);
+       } 
+
+       distances.put(country1, 0);
+       queue.add(country1);
+
+       while(!queue.isEmpty()) {
+            String currCountry = queue.poll();
+
+            if(currCountry.equals(country2)) {
+                break;
+            }
+
+            List<String> neighbors = countryGraph.getNeighbors(currCountry);
+
+            for(String neighbor: neighbors) {
+                int dist = distances.get(currCountry) + countryGraph.getDistance(currCountry, neighbor);
+
+                if(dist < distances.get(neighbor)) {
+                    distances.put(neighbor, dist);
+                    previous.put(neighbor, currCountry);
+                    queue.add(neighbor);
+                }
+
+            }
+       }
+
+       if(!previous.containsKey(country2) || previous.get(country2) == null) {
+            return new ArrayList<>();
+       } else {
+            return constructPath(previous, country2);
+       }
+   
     }
 
     
@@ -169,6 +207,7 @@ public class IRoadTrip {
     private List<String> constructPath(Map<String, String> parentMap, String dest) {
         List<String> path = new ArrayList<>();
         String curr = dest;
+
         while(curr != null) {
             path.add(0, curr);
             curr = parentMap.get(curr);

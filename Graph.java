@@ -7,12 +7,40 @@ import static java.lang.Integer.MAX_VALUE;
  */
 public class Graph {
     private Map<String, Map<String, Integer>> distanceMap;
+    private Map<String, Map<String, Integer>> adjacencyList;
    // private LinkedList<Edge>[] vertexArr;
     public int n;
-    private int[] setArr;
+   // private int[] setArr;
    // private int numVertices;
 
-    public Map<String, Integer> getDistanceMap(String country) {
+
+   public Graph() {
+    adjacencyList = new HashMap<>();
+   }
+
+
+   public List<String> getCountries() {
+        return new ArrayList<>(adjacencyList.keySet());
+   }
+
+   public List<String> getNeighbors(String country) {
+        if(adjacencyList.containsKey(country)) {
+            return new ArrayList<>(adjacencyList.get(country).keySet());
+        }
+
+        return new ArrayList<>();
+   }
+
+   public int getDistance(String country1, String country2) {
+        if(adjacencyList.containsKey(country1) && adjacencyList.get(country1).containsKey(country2)) {
+            return adjacencyList.get(country1).get(country2);
+        }
+        //return is distance cannot be found
+        //or countries do not share a border
+        return -1;
+   }
+    
+   public Map<String, Integer> getDistanceMap(String country) {
         if(distanceMap.containsKey(country)) {
             return distanceMap.get(country);
         } else {
@@ -20,17 +48,20 @@ public class Graph {
         }
     }
 
-   /***
-     * Creates a symmetric edge.  For non-directed graph
-     * @param v1 vertex labeled with int v1
-     * @param v2 vertex labeled with int v1
-     * @param weight is the weight of undirected edge (v1, v2)
-     */
-    public void addEdge(int v1, int v2, int weight){
-        Edge v1Edge = new Edge(v1, v2, weight);
-        vertexArr[v1].add(v1Edge);
-        Edge v2Edge = new Edge(v2, v1, weight);
-        vertexArr[v2].add(v2Edge);
+   /**
+    * adds edge between two countries
+    * @param country1
+    * @param country2
+    * @param distance
+    */
+    public void addEdge(String country1, String country2, int distance){
+        adjacencyList.computeIfAbsent(country1, k -> new HashMap<>()).put(country2, distance);
+
+        adjacencyList.computeIfAbsent(country2, k -> new HashMap<>()).put(country1, distance);
+       // Edge v1Edge = new Edge(v1, v2, weight);
+      //  vertexArr[v1].add(v1Edge);
+      //  Edge v2Edge = new Edge(v2, v1, weight);
+      //  vertexArr[v2].add(v2Edge);
     }
 
     /***
@@ -38,9 +69,12 @@ public class Graph {
      * @param v1 vertex labeled with int v1
      * @param v2 vertex labeled with int v2
      */
-    public void addDirEdge(int v1, int v2, int w){
-        Edge myEdge = new Edge(v1, v2, w);
-        vertexArr[v1].add(myEdge);
+    public void addDirEdge(String source, String dest, int w){
+      //  Edge myEdge = new Edge(v1, v2, w);
+       // vertexArr[v1].add(myEdge);
+       adjacencyList.putIfAbsent(source, new HashMap<>());
+
+       adjacencyList.get(source).put(dest, w);
     }
 
 
@@ -130,6 +164,8 @@ public class Graph {
         }
     }
 
+
+    
 
     /**
      * 
