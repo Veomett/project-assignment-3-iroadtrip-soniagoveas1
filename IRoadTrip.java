@@ -23,7 +23,7 @@ public class IRoadTrip {
      * @param args
      */
     public IRoadTrip (String [] args) {
-        countryGraph = new Graph();
+        countryGraph = new Graph(0);
         countryCodesMap = new HashMap<String, String>();
         fixedCountriesMap = createFixedCountries();
         
@@ -77,11 +77,11 @@ public class IRoadTrip {
                 String country = parts[0].trim();
                 String[] borders = parts[1].split(";");
 
-               countryGraph.addNode(country);
+               countryGraph.addEdge(0, 0, 0);
 
                for(String border: borders) {
                     String borderCountry = border.trim();
-                    countryGraph.addEdge(country, borderCountry);
+                  //  countryGraph.addDirEdge(country, borderCountry, 0);
                }
             }
         } catch(IOException e) {
@@ -102,7 +102,7 @@ public class IRoadTrip {
                 String countryB = parts[3];
                 int distance = Integer.parseInt(parts[4]);
 
-                countryGraph.addDistance(countryA, countryB, distance);
+                countryGraph.addEdge(countryA, countryB, distance);
             } 
         } catch (IOException e){
             e.printStackTrace();
@@ -230,5 +230,4 @@ public class IRoadTrip {
         }
         a3.acceptUserInput();
     }
-
 }
