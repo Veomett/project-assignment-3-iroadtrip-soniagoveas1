@@ -12,16 +12,17 @@ import java.util.HashMap;
 
 public class IRoadTrip {
 
-    private Graph countryGraph;
-    private Map<String, String> countryCodesMap;
+    public Graph countryGraph;
+    public Map<String, String> countryCodesMap;
     public Map<String, String> fixedCountriesMap;
+    private Map<String, Map<String, Integer>> distanceMap; // New field for distance mapping
 
     /**
      * 
      * @param args
      */
     public IRoadTrip (String [] args) {
-        countryGraph = new Graph(0);
+        countryGraph = new Graph();
         countryCodesMap = new HashMap<String, String>();
         fixedCountriesMap = createFixedCountries();
         
@@ -114,7 +115,7 @@ public class IRoadTrip {
                 int distance = Integer.parseInt(parts[4]);
 
                 countryGraph.addEdge(countryA, countryB, distance);
-            } 
+                } 
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -140,7 +141,7 @@ public class IRoadTrip {
                 LocalDate endDate = LocalDate.parse(parts[4]);
 
                 if(endDate.isEqual(targetEndDate)) {
-                    countryCodesMap.put(countryID, countryName);
+                    countryCodesMap.put(countryName, countryID);
                 }
                
             } 
@@ -159,7 +160,7 @@ public class IRoadTrip {
      *          or if the countries do not share a border
      */
     public int getDistance(String country1, String country2) {
-        Map<String, Integer> distanceFromCountry1 = countryGraph.getDistanceMap(country1);
+        Map<String, Integer> distanceFromCountry1 = countryGraph.getDistance(country1, country2);
 
         if(distanceFromCountry1 != null && distanceFromCountry1.containsKey(country2)) {
             return distanceFromCountry1.get(country2);
@@ -195,7 +196,6 @@ public class IRoadTrip {
        //add starting country to priority queue
        queue.add(country1);
 
-
        while(!queue.isEmpty()) {
             String currCountry = queue.poll();
 
@@ -217,7 +217,6 @@ public class IRoadTrip {
 
             }
        }
-
        //constructing + returning the path
        if(!previous.containsKey(country2) || previous.get(country2) == null) {
             return new ArrayList<>();
@@ -229,23 +228,30 @@ public class IRoadTrip {
 
     
     /**
-     * constructs path from previous nodes map
-     * @param prev: map containign previous nodes for each country
-     * @param dest: destination country
-     * @return: path of countries from source to destination
-     */
-    private List<String> constructPath(Map<String, String> prev, String dest) {
-        List<String> path = new ArrayList<>();
-        String curr = dest;
+    * finds all the places distance for other countries
+    * @param country
+    * @return resulting map, else return null
+    */
+    public Map<String, Map<String, Integer>> getDistanceMap(String country) {
+        List<String> countries = countryGraph.getCountries();
+        Map<String, Integer> distancceMap = new HashMap<>();
 
-        while(curr != null) {
-            path.add(0, curr);
-            curr = prev.get(curr);
+        if(!countries.contains(country)) {
+            return null;
         }
-        return path;
+
+        for(String otherCountry: countries) {
+            int distance = countryGraph.getDistance(country, otherCountry);
+
+            if(distance != -1) {
+                distanceMap.computeIfAbsent(country, k -> new HashMap<>()).put(otherCountry, distance);
+            }
+        }
+        return distanceMap;
     }
 
-    
+   
+
     /**
      * reads user input for two countries
      * finds path between them 
@@ -294,13 +300,13 @@ public class IRoadTrip {
      * @param args
      */
     public static void main(String[] args) {
-        IRoadTrip a3 = new IRoadTrip(args);
+        IRoadTrip roadTrip = new IRoadTrip(args);
 
         if(args.length!= 3) {
             System.out.println("Must input borders.txt, capdist.csv, and state_name.tsv");
         } else {
             System.out.println("Unable to complete task :( )");
         }
-        a3.acceptUserInput();
+        roadTrip.acceptUserInput();
     }
 }

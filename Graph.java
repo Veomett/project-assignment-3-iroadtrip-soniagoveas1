@@ -3,20 +3,19 @@ import static java.lang.Integer.MAX_VALUE;
 
 
 /**
- * partly Prof. Veomett's implementation with edits to fit reqs :)
+ * partly Prof. Veomett's implementation with edits to fit reqs + additional code :)
  */
 public class Graph {
-    private Map<String, Map<String, Integer>> distanceMap;
     private Map<String, Map<String, Integer>> adjacencyList;
-    private NodeCost[] nodeCosts;
-    public int n;
 
 
+    
    /**
     * creating a new hashmap
     */
    public Graph() {
     adjacencyList = new HashMap<>();
+    
    }
 
 
@@ -58,20 +57,8 @@ public class Graph {
    }
     
 
-   /**
-    * finds all the places distance for other countries
-    * @param country
-    * @return resulting map, else return null
-    */
-   public Map<String, Integer> getDistanceMap(String country) {
-        if(distanceMap.containsKey(country)) {
-            return distanceMap.get(country);
-        } else {
-            return null;
-        }
-    }
-
-
+   
+   
    /**
     * adds edge between two countries with the given distance
     * @param country1: name of the first country
@@ -88,48 +75,30 @@ public class Graph {
     }
 
 
-    /***
-     * Creates a directed edge from v1 to v2, with weight 1
-     * @param v1 vertex labeled with int v1
-     * @param v2 vertex labeled with int v2
+    /**
+     * 
+     * @param source
+     * @param dest
+     * @param w
      */
     public void addDirEdge(String source, String dest, int w){
-      //  Edge myEdge = new Edge(v1, v2, w);
-       // vertexArr[v1].add(myEdge);
        adjacencyList.putIfAbsent(source, new HashMap<>());
 
        adjacencyList.get(source).put(dest, w);
     }
 
-
-    /***
-     * tells whether v1 and v2 are adjacent
-     * If the graph is directed, returns true if either (v1, v2)
-     * or (v2, v1) is an edge
-     * @param v1 vertex labeled with int v1
-     * @param v2 vertex labeled with int v2
-     * @return true if (v1, v2) or (v2, v1) is an edge
+    
+    /**
+     * 
+     * @param country1
+     * @param country2
+     * @return
      */
-    public boolean areAdjacent(int v1, int v2){
-        boolean toReturn = false;
-        LinkedList<Edge> v1LL = vertexArr[v1];
-        Iterator<Edge> v1it = v1LL.iterator();
-        Edge currEdge;
-        while(v1it.hasNext()){
-            currEdge = v1it.next();
-            if(currEdge.source == v1 & currEdge.dest == v2 ) {
-                toReturn = true;
-            }
+    public boolean areAdjacent(String country1, String country2) {
+        if(adjacencyList.containsKey(country1) && adjacencyList.containsKey(country2)) {
+            return adjacencyList.get(country1).containsKey(country2) || adjacencyList.get(country2).containsKey(country1);
         }
-        LinkedList<Edge> v2LL = vertexArr[v2];
-        Iterator<Edge> v2it = v2LL.iterator();
-        while(v2it.hasNext()){
-            currEdge = v2it.next();
-            if(currEdge.source == v2 & currEdge.dest == v1 ) {
-                toReturn = true;
-            }
-        }
-        return toReturn;
+        return false;
     }
 
 
@@ -164,15 +133,17 @@ public class Graph {
     
     //helper for dijkstra's algorithm
     private class NodeCost implements Comparable<NodeCost> {
-        int node;
+        String node;
         int cost;
-        NodeCost(int n, int c) {
-            node=n;
-            cost=c;
-        };
+
+        NodeCost(String country, int c) {
+            node = country;
+            cost = c;
+        }
+
         @Override
-        public int compareTo(NodeCost nc1) {
-            return this.cost - nc1.cost;
+        public int compareTo(NodeCost other) {
+            return Integer.compare(this.cost, other.cost);
         }
     }
 
@@ -184,11 +155,27 @@ public class Graph {
     Graph(int n) { 
         numVertices = n;
         //vertexArr = new LinkedList[n];
-        nodeCosts = new NodeCost[numVertices];
         for (int i = 0; i < numVertices; i++){
             vertexArr[i] = new LinkedList<>();
-            nodeCosts[i] = new NodeCost(i, MAX_VALUE);
         }
+    }
+
+
+     /**
+     * constructs path from previous nodes map
+     * @param prev: map containign previous nodes for each country
+     * @param dest: destination country
+     * @return: path of countries from source to destination
+     */
+    private List<String> constructPath(Map<String, String> prev, String dest) {
+        List<String> path = new ArrayList<>();
+        String curr = dest;
+
+        while(curr != null) {
+            path.add(0, curr);
+            curr = prev.get(curr);
+        }
+        return path;
     }
 
  
@@ -197,34 +184,44 @@ public class Graph {
      * one node is the source and this is compared to all the other nodes in graph
      * @param source
      */
-    public void dijkstra(int source) {
+    public List<String> dijkstra(String source, String dest) {
         PriorityQueue<NodeCost> costMinHeap = new PriorityQueue<>();
-        int[] finalCosts = new int[numVertices];
-        for (int i=0; i<numVertices; i++){
-            if (i == source){
-                nodeCosts[source].cost = 0;}
-                finalCosts[i] = MAX_VALUE;
-                costMinHeap.add(nodeCosts[i]);
-        }
+        Map<String, Integer> finalCost = new HashMap<>();
+        Map<String, String> prev = new HashMap<>();
 
-        int numFinalized = 0;
-        while (numFinalized < numVertices) {
-            NodeCost curNode = costMinHeap.remove();
-            int curVertex = curNode.node;
-            if(finalCosts[curVertex] == MAX_VALUE) {
-                finalCosts[curVertex] = curNode.cost;
-                numFinalized++;
-                Iterator<Edge> it = vertexArr[curVertex].iterator();
-                while(it.hasNext()){
-                    Edge curEdge = it.next();
-                    if((curEdge.weight + curNode.cost) < nodeCosts[curEdge.dest].cost) {
-                        nodeCosts[curEdge.dest].cost = curEdge.weight + curNode.cost;
-                        NodeCost insertedNode = new NodeCost(curEdge.dest, curEdge.weight + finalCosts[curVertex]);
-                        costMinHeap.add(insertedNode);
-                    }
+        //int[] finalCosts = new int[numVertices];
+
+        for(String country: adjacencyList.keySet()) {
+            if(country.equals(source)) {
+                finalCost.put(country, 0);
+            } else {
+                finalCost.put(country, MAX_VALUE);
+            }
+            prev.put(country, null);
+            costMinHeap.add(new NodeCost(country, finalCost.get(country)));
+        }
+        
+        while(!costMinHeap.isEmpty()) {
+            NodeCost currNode = costMinHeap.poll();
+            String currCountry = currNode.node;
+
+            if(currCountry.equals(dest)) {
+                return constructPath(prev, dest); 
+            }
+
+            for(Map.Entry<String, Integer> neighbor: adjacencyList.get(currCountry).entrySet()) {
+                String neighborCountry = neighbor.getKey();
+                int edgeWeight = neighbor.getValue();
+                int newCost = finalCost.get(currCountry) + edgeWeight;
+
+                if(newCost < finalCost.get(neighborCountry)) {
+                    finalCost.put(neighborCountry, newCost);
+                    prev.put(neighborCountry, currCountry);
+                    costMinHeap.add(new NodeCost(neighborCountry, newCost));
                 }
             }
-        }
-        System.out.println(Arrays.toString(finalCosts));
+         }
+
+         return new ArrayList<>();
     }
 }
