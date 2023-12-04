@@ -1,17 +1,14 @@
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
-//import java.util.Queue;
-//import java.util.Set;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-//import java.util.HashSet;
-//import java.util.LinkedList;
 
 public class IRoadTrip {
 
@@ -34,10 +31,15 @@ public class IRoadTrip {
     
         }
 
+        //reading each of the inputted files
+        //args[0] = borders.txt
+        //args[1] = capdist.csv
+        //args[2] = state_name.tsv
         readBordersFile(args[0]);
         readCapitalDistancesFile(args[1]);
         readStateNameFile(args[2]);
     }
+
 
     /**
      * idea from Prof. Veomett
@@ -70,8 +72,11 @@ public class IRoadTrip {
 
 
     /**
-     * 
-     * @param fileName
+     * reading info from border file
+     * finds the diff parts 
+     * before equal is name of source country
+     * other countries are separated by ';'
+     * @param fileName: input of file w/ bordering countries
      */
     private void readBordersFile(String fileName) {
         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -92,9 +97,12 @@ public class IRoadTrip {
         }
     }
 
+
     /**
-     * 
-     * @param fileName
+     * reads capdist.csv file
+     * takes capital distances and adds into country graph
+     * each edge represents the distance between the countries
+     * @param fileName: input of file w/ distances
      */
     private void readCapitalDistancesFile(String fileName) {
          try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -112,30 +120,43 @@ public class IRoadTrip {
         }
     }
 
+
     /**
-     * 
-     * @param fileName
+     * reads state names and IDs from state_name.tsv
+     * creates map with the country IDs as keys  & country names as values
+     * countries will only be added if they currently exist
+     * so their end date is 2020-12-31
+     * @param fileName: input of file w/ state names & IDs
      */
     private void readStateNameFile(String fileName) {
+        LocalDate targetEndDate = LocalDate.of(2020, 12, 31);
+
         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
             while((line = br.readLine()) != null) {
                 String[] parts = line.split("\t");
                 String countryID = parts[1];
                 String countryName = parts[2];
+                LocalDate endDate = LocalDate.parse(parts[4]);
 
-               countryCodesMap.put(countryID, countryName);
+                if(endDate.isEqual(targetEndDate)) {
+                    countryCodesMap.put(countryID, countryName);
+                }
+               
             } 
         } catch(IOException e) {
             e.printStackTrace();
         }
     }
 
+
     /**
-     * 
-     * @param country1
-     * @param country2
-     * @return
+     * get the distance between two countries
+     * @param country1: name of first country
+     * @param country2: name of second country
+     * @return: the distance between the two countries
+     *          else returns -1 if distance is not available
+     *          or if the countries do not share a border
      */
     public int getDistance(String country1, String country2) {
         Map<String, Integer> distanceFromCountry1 = countryGraph.getDistanceMap(country1);
@@ -151,26 +172,34 @@ public class IRoadTrip {
     /**
      * find path from country 1 to country 2
      * through the capitals of other countries
-     * @param country1
-     * @param country2
-     * @return
+     * @param country1: starting country
+     * @param country2: destination country
+     * @return: list of shortest path between the two countries
      */
     public List<String> findPath(String country1, String country2) {
+
+        //initializing data structures
        Map<String, Integer> distances = new HashMap<>();
        Map<String, String> previous = new HashMap<>();
        PriorityQueue<String> queue = new PriorityQueue<>(Comparator.comparingInt(distances::get));
 
+        //initializing distances & prev nodes for both countries
        for(String country: countryGraph.getCountries()) {
             distances.put(country, Integer.MAX_VALUE);
             previous.put(country, null);
        } 
 
+       //set starting country distance to 0
        distances.put(country1, 0);
+
+       //add starting country to priority queue
        queue.add(country1);
+
 
        while(!queue.isEmpty()) {
             String currCountry = queue.poll();
 
+            //breaks when destination is reached
             if(currCountry.equals(country2)) {
                 break;
             }
@@ -189,6 +218,7 @@ public class IRoadTrip {
             }
        }
 
+       //constructing + returning the path
        if(!previous.containsKey(country2) || previous.get(country2) == null) {
             return new ArrayList<>();
        } else {
@@ -199,27 +229,30 @@ public class IRoadTrip {
 
     
     /**
-     * 
-     * @param parentMap
-     * @param dest
-     * @return
+     * constructs path from previous nodes map
+     * @param prev: map containign previous nodes for each country
+     * @param dest: destination country
+     * @return: path of countries from source to destination
      */
-    private List<String> constructPath(Map<String, String> parentMap, String dest) {
+    private List<String> constructPath(Map<String, String> prev, String dest) {
         List<String> path = new ArrayList<>();
         String curr = dest;
 
         while(curr != null) {
             path.add(0, curr);
-            curr = parentMap.get(curr);
+            curr = prev.get(curr);
         }
         return path;
     }
 
+    
     /**
-     * 
+     * reads user input for two countries
+     * finds path between them 
+     * exits when "EXIT" is entered by user
      */
     public void acceptUserInput() {
-        // Replace with your code
+        //initializing variables for user input of the two countries
         String input1;
         String input2;
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -238,7 +271,8 @@ public class IRoadTrip {
                 if(input2.equalsIgnoreCase("EXIT")){
                      break;
                 }
-                   
+
+                //finds the path between the two countries   
                 List<String> path = findPath(input1, input2);
                 if(path.isEmpty()) {
                     System.out.println("No path found between " + input1 + " to " + input2); 
