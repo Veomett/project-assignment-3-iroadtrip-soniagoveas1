@@ -8,8 +8,6 @@ import static java.lang.Integer.MAX_VALUE;
 public class Graph {
     public Map<String, Map<String, Integer>> adjacencyList;
 
-
-    
    /**
     * creating a new hashmap
     */
@@ -41,24 +39,6 @@ public class Graph {
    }
 
 
-   /**
-    * 
-    * @param country1
-    * @param country2
-    * @return: -1 if countries do not share a border
-    */
-   public int getDistance(String country1, String country2) {
-        if(adjacencyList.containsKey(country1) && adjacencyList.get(country1).containsKey(country2)) {
-            return adjacencyList.get(country1).get(country2);
-        }
-        //return is distance cannot be found
-        //or countries do not share a border
-        return -1;
-   }
-    
-
-   
-   
    /**
     * adds edge between two countries with the given distance
     * @param country1: name of the first country
@@ -99,6 +79,16 @@ public class Graph {
             return adjacencyList.get(country1).containsKey(country2) || adjacencyList.get(country2).containsKey(country1);
         }
         return false;
+    }
+
+
+    /**
+     * 
+     * @param country
+     * @return
+     */
+    public boolean hasCountry(String country) {
+        return adjacencyList.containsKey(country);
     }
 
 

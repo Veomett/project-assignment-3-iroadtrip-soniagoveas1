@@ -15,7 +15,7 @@ public class IRoadTrip {
     public Graph countryGraph;
     public Map<String, String> countryCodesMap;
     public Map<String, String> fixedCountriesMap;
-    private Map<String, Map<String, Integer>> distanceMap; // New field for distance mapping
+
 
     /**
      * 
@@ -42,11 +42,15 @@ public class IRoadTrip {
     /**
      * idea from Prof. Veomett
      * @return fixed countries
+     * names are changed allow them to be recognized as the same country
      */
     public Map<String, String> createFixedCountries() {
         Map<String, String> fixedCountries = new HashMap<>();
         fixedCountries.put("Bahamas", "Bahamas, The");
         fixedCountries.put("Bosnia-Herzegonia", "Bosnia and Herzegonia");
+        fixedCountries.put("Botswana.", "Botswana");
+        fixedCountries.put("Cape Verde", "Cabo Verde");
+        fixedCountries.put("Cambodia (Kampuchea)", "Cambodia");
         fixedCountries.put("Congo, Democratic Republic of (Zaire)", "Democratic Republic of the Congo");
         fixedCountries.put("Congo, Democratic Republic of the", "Republic of the Congo");
         fixedCountries.put("East Timor", "Timor-Leste");
@@ -56,14 +60,23 @@ public class IRoadTrip {
         fixedCountries.put("Greenland).", "Greenland");
         fixedCountries.put("Italy.", "Italy");
         fixedCountries.put("Korea, North", "North Korea");
+        fixedCountries.put("Korea, People's Republic Of", "North Korea");
+        fixedCountries.put("Korea, South", "South Korea");
+        fixedCountries.put("Korea, Republic of", "South Korea");
+        fixedCountries.put("Kyrgyz Republic", "Kyrgystan");
         fixedCountries.put("Macedonia", "North Macedonia");
         fixedCountries.put("Macedonia (Former Yugoslav Republic of)", "Macedonia");
+        fixedCountries.put("Myanmar (Burma)", "Burma");
+        fixedCountries.put("Sri Lanka (Ceylon)", "Sri Lanka");
+        fixedCountries.put("Turkey (Turkiye)", "Turkey");
         fixedCountries.put("US", "United States of America");
+        fixedCountries.put("UAE", "United Arab Emirates");
         fixedCountries.put("Unites States", "United States of America");
         fixedCountries.put("UK", "United Kingdom");
+        fixedCountries.put("Vietnam, Democratic Republic of", "Vietnam");
         fixedCountries.put("Zambia.", "Zambia");
         fixedCountries.put("Romania", "Rumania");
-        fixedCountries.put("Cape Verde", "Cabo Verde");
+        
 
         return fixedCountries;
     }
@@ -155,14 +168,12 @@ public class IRoadTrip {
      *          else returns -1 if distance is not available
      *          or if the countries do not share a border
      */
-    public int getDistance(String country1, String country2) {
-        Map<String, Integer> distanceFromCountry1 ;
-
-         if(distanceFromCountry1 != null && distanceFromCountry1.containsKey(country2)) {
-            return distanceFromCountry1.get(country2);
-        } else {
-            return -1;
-        }
+  public int getDistance(String country1, String country2) {
+        //checks if both exist
+        if(countryGraph.hasCountry(country1) && countryGraph.areAdjacent(country1, country2)) {
+           return countryGraph.adjacencyList.get(country1).get(country2);
+       }
+        return -1;
     }
     
 
@@ -203,7 +214,7 @@ public class IRoadTrip {
             List<String> neighbors = countryGraph.getNeighbors(currCountry);
 
             for(String neighbor: neighbors) {
-                int dist = distances.get(currCountry) + countryGraph.getDistance(currCountry, neighbor);
+                int dist = distances.get(currCountry) + getDistance(currCountry, neighbor);
 
                 if(dist < distances.get(neighbor)) {
                     distances.put(neighbor, dist);
@@ -223,31 +234,6 @@ public class IRoadTrip {
     }
 
     
-    /**
-    * finds all the places distance for other countries
-    * @param country
-    * @return resulting map, else return null
-    */
-    public Map<String, Map<String, Integer>> getDistanceMap(String country) {
-        List<String> countries = countryGraph.getCountries();
-        Map<String, Integer> distanceMap = new HashMap<>();
-
-        if(!countries.contains(country)) {
-            return null;
-        }
-
-        for(String otherCountry: countries) {
-            int distance = countryGraph.getDistance(country, otherCountry);
-
-            if(distance != -1) {
-               // distanceMap.computeIfAbsent(country, k -> new HashMap<>()).put(otherCountry, distance);
-            }
-       }
-        return distanceMap;
-    }
-
-   
-
     /**
      * reads user input for two countries
      * finds path between them 
