@@ -6,7 +6,7 @@ import static java.lang.Integer.MAX_VALUE;
  * partly Prof. Veomett's implementation with edits to fit reqs + additional code :)
  */
 public class Graph {
-    private Map<String, Map<String, Integer>> adjacencyList;
+    public Map<String, Map<String, Integer>> adjacencyList;
 
 
     
@@ -128,11 +128,11 @@ public class Graph {
     }
 
     
-    private LinkedList<Edge>[] vertexArr;
-    private int numVertices;
+    public LinkedList<Edge>[] vertexArr;
+    public int numVertices;
     
     //helper for dijkstra's algorithm
-    private class NodeCost implements Comparable<NodeCost> {
+    public class NodeCost implements Comparable<NodeCost> {
         String node;
         int cost;
 
@@ -167,7 +167,7 @@ public class Graph {
      * @param dest: destination country
      * @return: path of countries from source to destination
      */
-    private List<String> constructPath(Map<String, String> prev, String dest) {
+    public List<String> constructPath(Map<String, String> prev, String dest) {
         List<String> path = new ArrayList<>();
         String curr = dest;
 

@@ -33,9 +33,6 @@ public class IRoadTrip {
         }
 
         //reading each of the inputted files
-        //args[0] = borders.txt
-        //args[1] = capdist.csv
-        //args[2] = state_name.tsv
         readBordersFile(args[0]);
         readCapitalDistancesFile(args[1]);
         readStateNameFile(args[2]);
@@ -46,7 +43,7 @@ public class IRoadTrip {
      * idea from Prof. Veomett
      * @return fixed countries
      */
-    private Map<String, String> createFixedCountries() {
+    public Map<String, String> createFixedCountries() {
         Map<String, String> fixedCountries = new HashMap<>();
         fixedCountries.put("Bahamas", "Bahamas, The");
         fixedCountries.put("Bosnia-Herzegonia", "Bosnia and Herzegonia");
@@ -79,14 +76,13 @@ public class IRoadTrip {
      * other countries are separated by ';'
      * @param fileName: input of file w/ bordering countries
      */
-    private void readBordersFile(String fileName) {
+    public void readBordersFile(String fileName) {
         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line; 
             while((line = br.readLine()) != null) {
                 String[] parts = line.split("=");
                 String country = parts[0].trim();
                 String[] borders = parts[1].split(";");
-
 
                for(String border: borders) {
                     String borderCountry = border.trim();
@@ -105,7 +101,7 @@ public class IRoadTrip {
      * each edge represents the distance between the countries
      * @param fileName: input of file w/ distances
      */
-    private void readCapitalDistancesFile(String fileName) {
+    public void readCapitalDistancesFile(String fileName) {
          try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
             while((line = br.readLine()) != null) {
@@ -129,7 +125,7 @@ public class IRoadTrip {
      * so their end date is 2020-12-31
      * @param fileName: input of file w/ state names & IDs
      */
-    private void readStateNameFile(String fileName) {
+    public void readStateNameFile(String fileName) {
         LocalDate targetEndDate = LocalDate.of(2020, 12, 31);
 
         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -160,15 +156,15 @@ public class IRoadTrip {
      *          or if the countries do not share a border
      */
     public int getDistance(String country1, String country2) {
-        Map<String, Integer> distanceFromCountry1 = countryGraph.getDistance(country1, country2);
+        Map<String, Integer> distanceFromCountry1 ;
 
-        if(distanceFromCountry1 != null && distanceFromCountry1.containsKey(country2)) {
+         if(distanceFromCountry1 != null && distanceFromCountry1.containsKey(country2)) {
             return distanceFromCountry1.get(country2);
         } else {
             return -1;
         }
     }
-
+    
 
     /**
      * find path from country 1 to country 2
@@ -217,11 +213,11 @@ public class IRoadTrip {
 
             }
        }
-       //constructing + returning the path
-       if(!previous.containsKey(country2) || previous.get(country2) == null) {
+        //constructing + returning the path
+         if(!previous.containsKey(country2) || previous.get(country2) == null) {
             return new ArrayList<>();
-       } else {
-            return constructPath(previous, country2);
+        } else {
+            return countryGraph.constructPath(previous, country2);
        }
    
     }
@@ -234,7 +230,7 @@ public class IRoadTrip {
     */
     public Map<String, Map<String, Integer>> getDistanceMap(String country) {
         List<String> countries = countryGraph.getCountries();
-        Map<String, Integer> distancceMap = new HashMap<>();
+        Map<String, Integer> distanceMap = new HashMap<>();
 
         if(!countries.contains(country)) {
             return null;
@@ -244,9 +240,9 @@ public class IRoadTrip {
             int distance = countryGraph.getDistance(country, otherCountry);
 
             if(distance != -1) {
-                distanceMap.computeIfAbsent(country, k -> new HashMap<>()).put(otherCountry, distance);
+               // distanceMap.computeIfAbsent(country, k -> new HashMap<>()).put(otherCountry, distance);
             }
-        }
+       }
         return distanceMap;
     }
 
