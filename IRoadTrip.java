@@ -46,7 +46,7 @@ public class IRoadTrip {
      */
     public Map<String, String> createFixedCountries() {
         Map<String, String> fixedCountries = new HashMap<>();
-        
+
         fixedCountries.put("Bahamas", "Bahamas, The");
         fixedCountries.put("Belarus (Byeloreussia)", "Belarus");
         fixedCountries.put("Bosnia-Herzegonia", "Bosnia and Herzegonia");
@@ -182,7 +182,9 @@ public class IRoadTrip {
      */
   public int getDistance(String country1, String country2) {
         //checks if both exist
-        if(countryGraph.hasCountry(country1) && countryGraph.areAdjacent(country1, country2)) {
+        if(countryGraph.hasCountry(country1) 
+            && countryGraph.hasCountry(country2) 
+            && countryGraph.areAdjacent(country1, country2)) {
            return countryGraph.adjacencyList.get(country1).get(country2);
        }
         return -1;

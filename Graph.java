@@ -38,7 +38,6 @@ public class Graph {
         return new ArrayList<>();
    }
 
-
    /**
     * adds edge between two countries with the given distance
     * @param country1: name of the first country
@@ -97,25 +96,51 @@ public class Graph {
 
 
     /**
-     * comparing edges by weight
+     * an edge between two vertices with a weight
+     * implementing Comparable, allowing for weight based comparison
      */
     public class Edge implements Comparable<Edge>{
         Integer source;
         Integer dest;
         int weight;
+
+        /**
+         * default constructor 
+         * initializing source, destination, and weight
+         */
         Edge(){
             source = null;
             dest = null;
             weight = 0;
         }
+
+        /**
+         * intializing edge with given source, destination, and weight
+         * @param v1: source vertex
+         * @param v2: destination vertex
+         * @param w: weight of the edge
+         */
         Edge(int v1, int v2, int w){
             source = v1;
             dest = v2;
             weight = w;
         }
+
+        /**
+         * @return: String representation of the edge
+         */
         public String toString(){
             return source + ":" + dest + "(" + weight + ") ";
         }
+
+        /**
+         * compares edge with another edge based on weights
+         * @param e: other edge for comparison
+         * @return: an integer conveying result
+         *          negative is weight is less than other weight
+         *          zero is weights are equal
+         *          positive is the weight is greater than other weight
+         */
         public int compareTo(Edge e){// needed for Kruskal's algorithm
             return this.weight - e.weight;
         }
@@ -126,15 +151,32 @@ public class Graph {
     public int numVertices;
     
     //helper for dijkstra's algorithm
+    /**
+     * represents a node and that node's cost
+     * implementing Comparable, allows for comparison based on cost
+     */
     public class NodeCost implements Comparable<NodeCost> {
         String node;
         int cost;
 
+        /**
+         * constructing NodeCost object
+         * @param country: country to be represented
+         * @param c: node cost
+         */
         NodeCost(String country, int c) {
             node = country;
             cost = c;
         }
 
+       /**
+        * compares NodeCost object with another based on costs
+        * @param other: other NodeCost object to compare with
+        * @return: integer value to show comparison outcome
+        *           negatve int if cost is less than other cost
+        *           zero if costs are equal
+        *           positive if cost is greater than other cost
+        */
         @Override
         public int compareTo(NodeCost other) {
             return Integer.compare(this.cost, other.cost);
@@ -148,7 +190,6 @@ public class Graph {
      */
     Graph(int n) { 
         numVertices = n;
-        //vertexArr = new LinkedList[n];
         for (int i = 0; i < numVertices; i++){
             vertexArr[i] = new LinkedList<>();
         }
