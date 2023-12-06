@@ -56,10 +56,10 @@ public class Graph {
 
 
     /**
-     * 
-     * @param source
-     * @param dest
-     * @param w
+     * add directed edge between two countries with a given weight
+     * @param source: source country of the directed edge
+     * @param dest: destination country of the directed edge
+     * @param w: weight of the directed edge between source & destination
      */
     public void addDirEdge(String source, String dest, int w){
        adjacencyList.putIfAbsent(source, new HashMap<>());
@@ -69,10 +69,13 @@ public class Graph {
 
     
     /**
-     * 
-     * @param country1
-     * @param country2
-     * @return
+     * checks if two countries are adjacent
+     * countries are adjacent if they are connected by an edge in the graph
+     * @param country1: name of the first country
+     * @param country2: name of the second country
+     * @return: true if the countries are adjacent
+     *          false if not adjacent
+     *          false if either or both countries do not exist in graph
      */
     public boolean areAdjacent(String country1, String country2) {
         if(adjacencyList.containsKey(country1) && adjacencyList.containsKey(country2)) {
@@ -83,9 +86,10 @@ public class Graph {
 
 
     /**
-     * 
-     * @param country
-     * @return
+     * checks whether the graph contains a country
+     * @param country: name of country you want to check if exists in grapj
+     * @return: true if country exists in the graph
+     *          false if country does not exist
      */
     public boolean hasCountry(String country) {
         return adjacencyList.containsKey(country);
@@ -169,17 +173,18 @@ public class Graph {
     }
 
  
-    /**
-     * dijkstra's algo finds shortest path between two nodes
-     * one node is the source and this is compared to all the other nodes in graph
-     * @param source
-     */
+    /***
+     * finds shortest path from source to destination 
+     * in weighted graph
+     * @param source: starting node in the path
+     * @param dest: destination node to find the shortest path to
+     * @return: list of strings representing the shortest path from source to destination
+     *          if no path exists, return an empty list
+     */         
     public List<String> dijkstra(String source, String dest) {
         PriorityQueue<NodeCost> costMinHeap = new PriorityQueue<>();
         Map<String, Integer> finalCost = new HashMap<>();
         Map<String, String> prev = new HashMap<>();
-
-        //int[] finalCosts = new int[numVertices];
 
         for(String country: adjacencyList.keySet()) {
             if(country.equals(source)) {
