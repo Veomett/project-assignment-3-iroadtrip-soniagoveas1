@@ -46,19 +46,26 @@ public class IRoadTrip {
      */
     public Map<String, String> createFixedCountries() {
         Map<String, String> fixedCountries = new HashMap<>();
+        
         fixedCountries.put("Bahamas", "Bahamas, The");
+        fixedCountries.put("Belarus (Byeloreussia)", "Belarus");
         fixedCountries.put("Bosnia-Herzegonia", "Bosnia and Herzegonia");
         fixedCountries.put("Botswana.", "Botswana");
+        fixedCountries.put("Burkina Faso (Upper Volta)", "Burkina Faso");
         fixedCountries.put("Cape Verde", "Cabo Verde");
         fixedCountries.put("Cambodia (Kampuchea)", "Cambodia");
+        fixedCountries.put("Congo", "Republic of the Congo");
         fixedCountries.put("Congo, Democratic Republic of (Zaire)", "Democratic Republic of the Congo");
         fixedCountries.put("Congo, Democratic Republic of the", "Republic of the Congo");
+        fixedCountries.put("Congo, Republic of the", "Republic of the Congo");
         fixedCountries.put("East Timor", "Timor-Leste");
         fixedCountries.put("Gambia, The", "The Gambia");
         fixedCountries.put("Gambia", "The Gambia");
         fixedCountries.put("German Federal Republic", "Germany");
         fixedCountries.put("Greenland).", "Greenland");
         fixedCountries.put("Italy.", "Italy");
+        fixedCountries.put("Italy/Sardinia", "Italy");
+        fixedCountries.put("Iran (Persia)", "Iran");
         fixedCountries.put("Korea, North", "North Korea");
         fixedCountries.put("Korea, People's Republic Of", "North Korea");
         fixedCountries.put("Korea, South", "South Korea");
@@ -67,17 +74,22 @@ public class IRoadTrip {
         fixedCountries.put("Macedonia", "North Macedonia");
         fixedCountries.put("Macedonia (Former Yugoslav Republic of)", "Macedonia");
         fixedCountries.put("Myanmar (Burma)", "Burma");
+        fixedCountries.put("Romania", "Rumania");
+        fixedCountries.put("Russia (Soviet Union)", "Russia");
         fixedCountries.put("Sri Lanka (Ceylon)", "Sri Lanka");
+        fixedCountries.put("Tanzania/Tanganyika", "Tanzania");
+        fixedCountries.put("Turkey (Ottomon Empire)", "Turkey");
         fixedCountries.put("Turkey (Turkiye)", "Turkey");
         fixedCountries.put("US", "United States of America");
         fixedCountries.put("UAE", "United Arab Emirates");
-        fixedCountries.put("Unites States", "United States of America");
         fixedCountries.put("UK", "United Kingdom");
+        fixedCountries.put("Unites States", "United States of America");
+        fixedCountries.put("US", "United States of America");
         fixedCountries.put("Vietnam, Democratic Republic of", "Vietnam");
+        fixedCountries.put("Yemen (Arab Republic of Yemen)", "Yemen");
         fixedCountries.put("Zambia.", "Zambia");
-        fixedCountries.put("Romania", "Rumania");
-        
-
+        fixedCountries.put("Zimbabwe (Rhodesia)", "Zimbabwe");
+    
         return fixedCountries;
     }
 
