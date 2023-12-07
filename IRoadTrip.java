@@ -16,7 +16,6 @@ public class IRoadTrip {
     public Map<String, String> countryCodesMap;
     public Map<String, String> fixedCountriesMap;
 
-
     /**
      * 
      * @param args
@@ -27,7 +26,6 @@ public class IRoadTrip {
         fixedCountriesMap = createFixedCountries();
         
         if(args.length != 3) {
-         //   System.out.println("Must input borders.txt, capdist.csv, and state_name.tsv");
             return;
     
         }
@@ -53,7 +51,7 @@ public class IRoadTrip {
         fixedCountries.put("Botswana.", "Botswana");
         fixedCountries.put("Burkina Faso (Upper Volta)", "Burkina Faso");
         fixedCountries.put("Cape Verde", "Cabo Verde");
-        fixedCountries.put("Cambodia (Kampuchea)", "Cambodia");
+        fixedCountries.put("Cambodia (Kampuchea)", "Cambodia");                          
         fixedCountries.put("Congo", "Republic of the Congo");
         fixedCountries.put("Congo, Democratic Republic of (Zaire)", "Democratic Republic of the Congo");
         fixedCountries.put("Congo, Democratic Republic of the", "Republic of the Congo");
@@ -107,7 +105,7 @@ public class IRoadTrip {
             while((line = br.readLine()) != null) {
                 String[] parts = line.split("=");
                 String country = parts[0].trim();
-                String[] borders = parts[1].split(";");
+                String[] borders = parts[1].split("\\d+ km;|\\d+ km|\\d+,\\d+ km;?|\\d+.\\d+ km;?");
 
                for(String border: borders) {
                     String borderCountry = border.trim();
@@ -180,11 +178,9 @@ public class IRoadTrip {
      *          else returns -1 if distance is not available
      *          or if the countries do not share a border
      */
-  public int getDistance(String country1, String country2) {
+    public int getDistance(String country1, String country2) {
         //checks if both exist
-        if(countryGraph.hasCountry(country1) 
-            && countryGraph.hasCountry(country2) 
-            && countryGraph.areAdjacent(country1, country2)) {
+        if(countryGraph.hasCountry(country1) && countryGraph.hasCountry(country2) && countryGraph.areAdjacent(country1, country2)) {
            return countryGraph.adjacencyList.get(country1).get(country2);
        }
         return -1;
@@ -273,18 +269,19 @@ public class IRoadTrip {
                 if(input2.equalsIgnoreCase("EXIT")){
                      break;
                 }
-
-                //finds the path between the two countries   
+                            //finds the path between the two countries   
+                //printing :)
                 List<String> path = findPath(input1, input2);
                 if(path.isEmpty()) {
                     System.out.println("No path found between " + input1 + " to " + input2); 
                 } else {
-                    System.out.println("Path from " + input1 + " to " + input2 + ":");
-                    for(String step: path) {
-                        System.out.println(" " + step);
+                    System.out.println("Route from " + input1 + " to " + input2);
+                    for(int i = 0; i < path.size() - 1; i ++){
+                        int distance = getDistance(path.get(i), path.get(i + 1));
+                        System.out.println("* " + path.get(i) + " --> " + path.get(i + 1) + " (" + distance + " km)" );
                     }
-                }
-            }   
+                 }
+                }  
         } catch(IOException e) {
             e.printStackTrace();
         }

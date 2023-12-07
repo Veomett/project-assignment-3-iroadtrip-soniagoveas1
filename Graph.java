@@ -10,6 +10,7 @@ public class Graph {
 
    /**
     * creating a new hashmap
+    * adjacencyList stores countries that share a border
     */
    public Graph() {
     adjacencyList = new HashMap<>();
